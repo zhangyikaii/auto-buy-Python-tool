@@ -444,7 +444,7 @@ if __name__ == '__main__':
         sendTo = contRe[0]
         cookies_String = contRe[1]
         print("Please confirm the email address: %s" % sendTo)
-        if not cookies_String:
+        if len(cookies_String) == 0:
             print("ERROR: Missing cookie.")
 
     contRe = contRe[2:]
