@@ -1,0 +1,9 @@
+﻿请注意所有讯息在单引号内填写
+您接收下单成功讯息的邮箱(可不填): '$$$$$$$@qq.com'
+
+您的登录cookie(请按照README.md内指南获取):
+''
+
+您需要自动购买的商品URL(请按照README.md内指南获取):
+'https://c0.3.cn/stock?skuId=1835967&area=16_1362_44319_51500&venderId=1000084390&buyNum=1&choseSuitSkuIds=&cat=9192,12190,1517&extraParam={%22originid%22:%221%22}&fqsp=0&pdpin=jd_77a8935fb872d&pduid=526700225&ch=1&callback=jQuery1535213'
+'https://c0.3.cn/stock?skuId=1835968&area=16_1362_44319_51500&venderId=1000084390&buyNum=1&choseSuitSkuIds=&cat=9192,12190,1517&extraParam={%22originid%22:%221%22}&fqsp=0&pdpin=jd_77a8935fb872d&pduid=526700225&ch=1&callback=jQuery366840'
