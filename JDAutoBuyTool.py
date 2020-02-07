@@ -352,7 +352,7 @@ def item_removed(sku_id):
 
 def buyGood(sku_id, session, logger, payment_pwd):
     for count in range(1, 5):
-        logger.info('第[%s/%s]次尝试提交订单', count, 3)
+        logger.info('第[%s/%s]次尝试提交订单', count, 5)
         cancelSelectCartItem(session)
         cart = cart_detail(session, logger)
         if sku_id not in cart:
