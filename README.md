@@ -15,9 +15,11 @@
 
 ![1580963623908](./assets/1580963623908.png)
 
+请注意商品`URL`需要是您的地址编号, 如TXT文件中`area=`参数.
 
 
-以上两步获得的讯息填入`Please fill out this document.txt`文件.
+
+**以上两步**获得的讯息填入`Please fill out this document.txt`文件.
 
 ```shell
 pip install -r requirements.txt
@@ -25,6 +27,10 @@ python JDAutoBuyTool.py
 ```
 
 
+
+**运行示例**:
+
+![1581038258274](./assets/1581038258274.png)
 
 ---
 
