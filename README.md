@@ -28,6 +28,10 @@ python JDAutoBuyTool.py
 
 
 
+**运行环境**:
+
+`Windows 10, Python 3`
+
 **运行示例**:
 
 ![1581038258274](./assets/1581038258274.png)
