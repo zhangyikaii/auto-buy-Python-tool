@@ -1,0 +1,157 @@
+/*
+    Notice:
+        01 注释只能用多行注释，单行注释会出错
+*/
+/*******定义字体，背景颜色*********/
+*{
+    font: "微软雅黑";
+    color: rgb(220, 220, 220);
+    background-color: rgb(68, 68, 68);
+    border-radius: 2px;
+    padding: 3px;
+    margin: 2px;
+}
+/****************定义边框*****************/
+QLineEdit, QPushButton, QTimeEdit,
+QSpinBox, QDoubleSpinBox, QComboBox,
+QDateEdit, QDateTimeEdit, QGroupBox,
+QTextEdit, QTabWidget {
+    border:1px solid rgb(36, 36, 36);
+}
+/*************菜单下拉按钮*****************/
+QMenu::item {
+    background-color: transparent;
+}
+/********菜单下拉按钮（被选择时）***********/
+QMenu::item:selected {
+    background-color: rgb(100, 100, 100);
+}
+/****************定义菜单栏***************/
+QMenuBar {
+    border-radius: 0;
+    background-color: rgb(72, 72, 72);
+    border-bottom: 1px solid rgb(36, 36, 36);
+}
+/************菜单栏按钮（被选择时）********/
+QMenuBar::item:selected {
+    background-color: rgb(100, 100, 100);
+}
+/************菜单栏按钮（鼠标悬停）********/
+QMenu:hover {
+    background-color: rgb(100, 100, 100);
+}
+/*********按钮（渐变：突出显示）***********/
+QPushButton {
+    border-style: inset;
+    background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(72, 72, 72, 255), stop:1 rgba(56, 56, 56, 255));
+    border:1px solid rgb(36, 36, 36);
+    border-radius: 6px;
+    min-width: 5em;
+    min-height: 1em;
+    padding: 6px 6px;
+    margin: 5px
+}
+/**************按钮（鼠标悬停）**********/
+QPushButton:hover {
+    background-color: rgb(91, 91, 91);
+}
+/**************按钮（按下）*************/
+QPushButton:pressed  {
+    background-color: rgb(68, 68, 68);
+}
+QSpinBox::up-button, QTimeEdit::up-button,
+QDateEdit::up-button, QDateTimeEdit::up-button,
+QDoubleSpinBox::up-button {
+    subcontrol-position: right;
+    border: 0px;
+}
+QSpinBox::down-button, QTimeEdit::down-button,
+QDateEdit::down-button, QDateTimeEdit::down-button,
+QDoubleSpinBox::down-button {
+    subcontrol-position: left;
+    border: 0px;
+}
+QSpinBox::up-arrow, QTimeEdit::up-arrow,
+QDateEdit::up-arrow, QDateTimeEdit::up-arrow,
+QDoubleSpinBox::up-arrow {
+    image: url(image/right.png);
+}
+QSpinBox::down-arrow, QTimeEdit::down-arrow,
+QDateEdit::down-arrow, QDateTimeEdit::down-arrow,
+QDoubleSpinBox::down-arrow {
+    image: url(image/left.png);
+}
+/*********定义Slider槽的形态**************/
+QSlider::groove:horizontal {
+    height: 6px;
+    border-radius: 3px;
+}
+/*********定义Slider柄的形态**************/
+QSlider::handle:horizontal {
+    background-color: rgb(68, 68, 68);
+    border-radius: 5px;
+    border: 2px solid rgb(36, 36, 36);
+    height: 8px;
+    width: 8px;
+    margin: -3px -3px;
+}
+/*********定义handle右边的背景**************/
+QSlider::add-page:horizontal{
+    background: rgb(72, 72, 72);
+}
+/*********定义handle左边的背景**************/
+QSlider::sub-page:horizontal{
+    background: rgb(36, 36, 36);
+}
+/****************定义进度条****************/
+QProgressBar {
+    border: 2px solid grey;
+    border-radius: 5px;
+    text-align: center;
+    height: 12px;
+}
+/*************定义进度条背景**************/
+QProgressBar::chunk {
+    background-color: rgb(128, 128, 128);
+    width: 8px;
+    margin: 0.5px;
+}
+
+QTabWidget::pane { /* The tab widget frame */
+    border: 1px solid rgb(36, 36, 36);
+}
+QTabWidget::tab-bar {
+    border: 1px solid rgb(36, 36, 36);
+}
+QTabBar::tab {
+    background: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(100, 100, 100, 255), stop:1 rgba(82, 82, 82, 255));
+    border: 1px solid rgb(36, 36, 36);
+    border-bottom-color: #C2C7CB; /* same as the pane color */
+    min-width: 12ex;
+    min-height: 6ex;
+    padding: 2px 4px;
+}
+QTabBar::tab:selected, QTabBar::tab:hover {
+    border-top: 2px solid red;
+    padding-top: 3px;
+    background: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(72, 72, 72, 255), stop:1 rgba(56, 56, 56, 255));
+}
+/*************QComboBox******************/
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 20px;
+    border: 0px;
+}
+QComboBox::down-arrow {
+    image: url(image/down.png);
+}
+QComboBox::down-arrow:on { /* shift the arrow when popup is open */
+    top: 1px;
+    left: 1px;
+}
+/*********下拉列表的item背景***************/
+QComboBox QAbstractItemView {
+    border: 0px;
+    selection-background-color: rgb(100, 100, 100);
+}
