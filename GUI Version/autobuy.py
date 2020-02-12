@@ -149,10 +149,10 @@ class Ui_QSSWindow(object):
         self.labelArea.setText(_translate("QSSWindow", "请输入收件地区编码:"))
         self.labelMail.setText(_translate("QSSWindow", "接受讯息邮箱:"))
         self.loginBtn.setText(_translate("QSSWindow", "扫码登录"))
-        self.startBtn.setText(_translate("QSSWindow", "开始监控"))
+        self.startBtn.setText(_translate("QSSWindow", "开始监控(可自动登录)"))
         self.stopBtn.setText(_translate("QSSWindow", "停止监控"))
 
-        self.labelAboutMe.setText(_translate("QSSWindow", '<h1>使用指南</h1> <a href="https://github.com/ZhangYikaii/auto-buy-Python-tool">请点击这里跳转</a> <h3>战疫情, 加油!</h3> <h4>欢迎在GitHub上加星. 谢谢!</h4>'))
+        self.labelAboutMe.setText(_translate("QSSWindow", '<h1>使用指南</h1> <a href="https://github.com/ZhangYikaii/auto-buy-Python-tool">请点击这里跳转</a> <h3>战疫情, 加油!</h3> <h4>欢迎在GitHub上加星. 谢谢!</h4> <h3>Tips: 登录一次之后本地会保存登录信息, 重启软件之后仍然可以记住账号登录信息</h3> <h3>只需点击"开始监控"就可以自动登录, 不必重复扫码哦</h3>'))
         self.labelAboutMe.setOpenExternalLinks(True)
 
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("QSSWindow", "Console"))
@@ -245,7 +245,11 @@ class Autobuy(QtWidgets.QMainWindow, Ui_QSSWindow):
         self.stopBtn.clicked.connect(self.stopConnect)
 
     def stopConnect(self):
-        self.updateStateText("已停止监控")
+        self.updateStateText("已停止监控.")
+        self.timer.stop()
+
+    def stopNow(self):
+        self.updateStateText("已停止监控.")
         self.timer.stop()
 
     def slvaluechange(self, val):
@@ -481,37 +485,31 @@ class Autobuy(QtWidgets.QMainWindow, Ui_QSSWindow):
             self.updateStateText('WARNING: [%s]编号商品查询异常' % ','.join(abnormalSkuid))
         return inStockSkuid
 
-    def itemRemoved(self, sku_id):
-        url = "https://c0.3.cn/stocks"
-
-        params = {
-            "skuIds": sku_id,
-            "area": self.areaID,
-            "type": "getstocks",
-            "_": int(time.time() * 1000)
-        }
-
+    def isSoldOut(self, sku_id):
         headers = {
-            "Referer": f"https://item.jd.com/{sku_id}.html",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-                          "Chrome/75.0.3770.142 Safari/537.36",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/531.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3",
+            "Referer": "http://trade.jd.com/shopping/order/getOrderInfo.action",
+            "Connection": "keep-alive",
+            'Host': 'item.jd.com',
         }
-        try:
-            response = requests.get(url, params=params, headers=headers)
-            # print(response.text)    # 33: 现货    34: 无货     40: 可配货
-            json_dict = json.loads(response.text)
-            stock_state = json_dict[sku_id]['StockState']
-            stock_state_name = json_dict[sku_id]['StockStateName']
-            if stock_state != 34:
-                self.updateStateText("%s 编号商品状态: %s" % (sku_id, stock_state_name))
-                return True
+        url = 'https://item.jd.com/{}.html'.format(sku_id)
+        page = requests.get(url=url, headers=headers)
+        return '该商品已下柜' not in page.text
+
+    def selectAll(self):
+        url = "https://cart.jd.com/selectAllItem.action"
+        data = {
+            't': 0,
+            'outSkus': '',
+            'random': random.random()
+        }
+        resp = self.sess.post(url, data=data)
+        if resp.status_code != requests.codes.OK:
+            self.updateStateText('全选购物车商品出错! status_code: %u, URL: %s' % (resp.status_code, resp.url))
             return False
-        except Exception as e:
-            self.updateStateText("itemRemoved function ERROR: %s" % str(e))
-
-        return False
-
-
+        self.updateStateText('全选购物车商品成功.')
+        return True
 
     def cart_detail(self, isOutput=False):
         url = 'https://cart.jd.com/cart.action'
@@ -754,6 +752,35 @@ class Autobuy(QtWidgets.QMainWindow, Ui_QSSWindow):
         server.sendmail(sendFrom, sendTo, msg.as_string())
         server.quit()
 
+    def removeItem(self):
+        url = "https://cart.jd.com/batchRemoveSkusFromCart.action"
+        data = {
+            't': 0,
+            'null': '',
+            'outSkus': '',
+            'random': random.random(),
+            'locationId': '19-1607-4773-0'
+        }
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.25 Safari/537.36 Core/1.70.37",
+            "Accept": "application/json, text/javascript, */*; q=0.01",
+            "Referer": "https://cart.jd.com/cart.action",
+            "Host": "cart.jd.com",
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+            "Origin": "https://cart.jd.com",
+            "Connection": "keep-alive"
+        }
+
+        resp = self.sess.post(url, data=data, headers=headers)
+        if resp.status_code != requests.codes.OK:
+            print('清空购物车勾选商品出错. status_code: %u, URL: %s' % (resp.status_code, resp.url))
+            return False
+
+        self.updateStateText('清空购物车勾选商品成功!')
+        return True
+
     def monitorMain(self):
         try:
             checkSession = requests.Session()
@@ -765,18 +792,26 @@ class Autobuy(QtWidgets.QMainWindow, Ui_QSSWindow):
             self.updateStateText('第 ' + str(self.cont) + ' 次查询:')
             self.cont += 1
             inStockSkuid = self.checkStock()
-            skuidUrl = 'https://item.jd.com/'
             for skuId in inStockSkuid:
-                if self.itemRemoved(skuId):
+                if self.isSoldOut(skuId):
                     self.updateStateText('%s 编号商品有货啦! 马上下单' % skuId)
                     skuidUrl = 'https://item.jd.com/' + skuId + '.html'
                     if self.buyGoods(skuId):
                         self.sendMail(skuidUrl, True)
-                        self.stopConnect()
                     else:
                         self.sendMail(skuidUrl, False)
+                    self.stopNow()
+
                 else:
-                    self.updateStateText('%s 编号商品有货，但已下柜商品' % skuId)
+                    self.updateStateText('%s 编号商品已下架.' % skuId)
+                    self.skuid.remove(skuId)
+                    idBeg = self.skuidString.find(str(skuId))
+                    idEnd = idBeg + len(str(skuId))
+                    self.skuidString = self.skuidString[0:idBeg] + self.skuidString[idEnd + 1:]
+                    self.inputGoods.setText(self.skuidString)
+                    self.updateStateText('已将 %s 编号的下架商品清除, 并更新了商品编号输入框.' % skuId)
+                    self.selectAll()
+                    self.removeItem()
 
             if self.cont % 300 == 0:
                 self.checkLogin()
