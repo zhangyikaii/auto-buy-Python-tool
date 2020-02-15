@@ -30,7 +30,7 @@ from email.header import Header
 class Ui_QSSWindow(object):
     def setupUi(self, QSSWindow):
         QSSWindow.setObjectName("QSSWindow")
-        QSSWindow.resize(680, 426)
+        QSSWindow.resize(800, 450)
         self.centralwidget = QtWidgets.QWidget(QSSWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.centralwidget)
@@ -64,12 +64,21 @@ class Ui_QSSWindow(object):
         self.inputArea.setObjectName("inputArea")
         self.area.addWidget(self.inputArea)
 
+
+
         self.labelMail = QtWidgets.QLabel(self.groupBox)
         self.labelMail.setObjectName("labelMail")
         self.area.addWidget(self.labelMail)
         self.inputMail = QtWidgets.QLineEdit(self.groupBox)
         self.inputMail.setObjectName("inputMail")
         self.area.addWidget(self.inputMail)
+
+        self.labelNum = QtWidgets.QLabel(self.groupBox)
+        self.labelNum.setObjectName("labelNum")
+        self.area.addWidget(self.labelNum)
+        self.comboBox = QtWidgets.QComboBox(self.groupBox)
+        self.comboBox.setObjectName("comboBox")
+        self.area.addWidget(self.comboBox)
 
         self.verticalLayout.addLayout(self.area)
         self.speedLayout = QtWidgets.QHBoxLayout()
@@ -85,6 +94,7 @@ class Ui_QSSWindow(object):
         self.progressBar.setProperty("value", 24)
         self.progressBar.setObjectName("progressBar")
         self.speedLayout.addWidget(self.progressBar)
+
         self.verticalLayout.addLayout(self.speedLayout)
         self.textEdit = QtWidgets.QTextEdit(self.groupBox)
         self.textEdit.setObjectName("textEdit")
@@ -148,6 +158,7 @@ class Ui_QSSWindow(object):
         self.labelGoods.setText(_translate("QSSWindow", "请输入商品ID(以逗号间隔):"))
         self.labelArea.setText(_translate("QSSWindow", "请输入收件地区编码:"))
         self.labelMail.setText(_translate("QSSWindow", "接受讯息邮箱:"))
+        self.labelNum.setText(_translate("QSSWindow", "购买数量:"))
         self.loginBtn.setText(_translate("QSSWindow", "扫码登录"))
         self.startBtn.setText(_translate("QSSWindow", "开始监控(可自动登录)"))
         self.stopBtn.setText(_translate("QSSWindow", "停止监控"))
@@ -220,6 +231,7 @@ class Autobuy(QtWidgets.QMainWindow, Ui_QSSWindow):
         self.inputGoods.setText("65466451629,65437208345,7498169,7498165,1835968,7263128,7498167,17449572304,37934196731,100001086804,56657322838,56657322841,100005294853,1938795,15595191653,15595191654,45923412989,1835967,1336984,65466451629,7498169,7263128,4061438,65421329578,100005678825,100005294853,45923412989,62830056100,45006657879")
         self.inputArea.setText("16_1362_44319_51500")
         self.inputMail.setText("$$$$$$$@qq.com")
+        self.comboBox.addItems(['1', '2', '3'])
         self.horizontalSlider.setValue(50)
         self.horizontalSlider.setMaximum(100)
         self.horizontalSlider.setMinimum(0)
@@ -472,17 +484,29 @@ class Autobuy(QtWidgets.QMainWindow, Ui_QSSWindow):
         inStockSkuid = []
         nohasSkuid = []
         abnormalSkuid = []
+
+        soldOut = 0
+        alloca = 0
         for i in self.skuid:
             try:
-                if respJson[i]['StockStateName'] != '无货':
-                    inStockSkuid.append(i)
-                else:
+                if respJson[i]['StockStateName'] == '无货':
                     nohasSkuid.append(i)
+                    soldOut += 1
+                elif respJson[i]['StockStateName'] == '可配货':
+                    nohasSkuid.append(i)
+                    alloca += 1
+                else:
+                    inStockSkuid.append(i)
+
             except Exception as e:
                 abnormalSkuid.append(i)
-        self.updateStateText('监控的 %d 个商品无货' % len(nohasSkuid))
+
+        if soldOut != 0:
+            self.updateStateText('监控的 %d 个商品无货.' % soldOut)
+        if alloca  != 0:
+            self.updateStateText('监控的 %d 个商品所在地区暂无货, 未来可能配货.' % alloca)
         if len(abnormalSkuid) > 0:
-            self.updateStateText('WARNING: [%s]编号商品查询异常' % ','.join(abnormalSkuid))
+            self.updateStateText('WARNING: %s 编号商品查询异常.' % ','.join(abnormalSkuid))
         return inStockSkuid
 
     def isSoldOut(self, sku_id):
@@ -553,10 +577,11 @@ class Autobuy(QtWidgets.QMainWindow, Ui_QSSWindow):
 
     def addItemToCart(self, sku_id):
         url = 'https://cart.jd.com/gate.action'
+        addNum = self.comboBox.currentIndex() + 1
         payload = {
             'pid': sku_id,
-            'pcount': 1,
-            'ptype': 1,
+            'pcount': addNum,
+            'ptype': 1
         }
         resp = self.sess.get(url=url, params=payload)
         if 'https://cart.jd.com/cart.action' in resp.url:  # 套装商品加入购物车后直接跳转到购物车页面
@@ -566,7 +591,7 @@ class Autobuy(QtWidgets.QMainWindow, Ui_QSSWindow):
             result = bool(soup.select('h3.ftx-02'))  # [<h3 class="ftx-02">商品已成功加入购物车！</h3>]
 
         if result:
-            self.updateStateText('%s 编号商品已成功加入购物车' % sku_id)
+            self.updateStateText('%s 编号商品已成功加入购物车, 数量: %d.' % (sku_id, addNum))
         else:
             self.updateStateText('ERROR: %s 编号商品添加到购物车失败' % sku_id)
 
@@ -695,7 +720,7 @@ class Autobuy(QtWidgets.QMainWindow, Ui_QSSWindow):
 
     def buyGoods(self, sku_id):
         for i in range(1, 2):
-            self.updateStateText('第[%d/%d]次尝试提交订单...' % (i, 2))
+            self.updateStateText('第 %d/%d 次尝试提交订单...' % (i, 2))
             self.cancelSelectCartItem()
             cart = self.cart_detail()
             if sku_id not in cart:
@@ -775,7 +800,7 @@ class Autobuy(QtWidgets.QMainWindow, Ui_QSSWindow):
 
         resp = self.sess.post(url, data=data, headers=headers)
         if resp.status_code != requests.codes.OK:
-            print('清空购物车勾选商品出错. status_code: %u, URL: %s' % (resp.status_code, resp.url))
+            self.updateStateText('清空购物车勾选商品出错. status_code: %u, URL: %s' % (resp.status_code, resp.url))
             return False
 
         self.updateStateText('清空购物车勾选商品成功!')

@@ -1,7 +1,7 @@
 # auto-buy-Python-tool
  图形界面, 电脑小白也会用, 下载可直接运行! 京东自动购买口罩 实时抢购口罩 工具, 抗击疫情 中国加油!
 
-修复了商品下架后的问题, 更新了交互界面 `2.0` :fire:
+修复了商品下架后的问题, 更新了交互界面; 修复了可配货商品的判断, 更新了数量调整接口 `3.0` :fire:
 
 <a href="https://github.com/ZhangYikaii/auto-buy-Python-tool/releases">点击这里</a> 下载`JDAutoBuy-release.zip`, 解压后可**直接运行!** 或者baidu网盘链接：https://pan.baidu.com/s/1mFIg0zMwYN9c_JsLC9wFog 提取码：8apw
 
@@ -20,6 +20,8 @@
 运行界面**如下图**:
 
 ![interface](./assets/1581218076866.png)
+
+Update at 2020-2-15: quantity can be modified![quantity](./assets/1581768213048.png)
 
 ### 填写方式:
 
@@ -48,6 +50,8 @@ Tips: 软件启动时带有标准填写格式的默认值, 请留意.
 更新后`2.0`运行界面:
 
 ![updateRun](./assets/1581508444771.png)
+
+Update at 2020-2-15 20:06:14: 最近比较难抢了, 因为京东一些商品是预约完再抢购, 预约完之后即被放入购物车, 导致监控有货无货较困难. 见谅.
 
 ---
 
