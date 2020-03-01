@@ -93,3 +93,4 @@ python JDAutoBuyTool.py
 感谢[cycz](https://github.com/cycz)大佬, 参考了部分代码.
 
 心情复杂, 也不懂抢口罩工具能不能帮上忙, **一定能尽快战胜疫情! 中国加油!** :star2:
+感谢作者的无私奉献！！！
