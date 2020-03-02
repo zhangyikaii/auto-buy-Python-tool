@@ -1,9 +1,9 @@
 # auto-buy-Python-tool
  图形界面, 电脑小白也会用, 下载可直接运行! 京东自动购买口罩 实时抢购口罩 工具, 抗击疫情 中国加油!
 
-修复了商品下架后的问题, 更新了交互界面; 修复了可配货商品的判断, 更新了数量调整接口 `3.0` :fire:
+修复了商品下架后的问题, 更新了交互界面; 修复了可配货商品的判断, 更新了数量调整接口, 更新了是否监控下架商品选项 `4.0` :fire:
 
-<a href="https://github.com/ZhangYikaii/auto-buy-Python-tool/releases">点击这里</a> 下载`JDAutoBuy-release.zip`, 解压后可**直接运行!** 或者baidu网盘链接：https://pan.baidu.com/s/1mFIg0zMwYN9c_JsLC9wFog 提取码：8apw
+<a href="https://github.com/ZhangYikaii/auto-buy-Python-tool/releases">点击这里</a> 下载`JDAutoBuy-release.zip`, 解压后可**直接运行!**
 
 ### 欢迎加星
 
@@ -21,6 +21,8 @@
 
 ![interface](./assets/1581218076866.png)
 
+Update at 2020-3-2: Continuously monitor goods removed from JD.![monitorSoldOutGoods](./assets/1583151909197.png)
+
 Update at 2020-2-15: quantity can be modified![quantity](./assets/1581768213048.png)
 
 ### 填写方式:
@@ -28,14 +30,13 @@ Update at 2020-2-15: quantity can be modified![quantity](./assets/1581768213048.
 Tips: 软件启动时带有标准填写格式的默认值, 请留意.
 
 + **输入商品ID:** 比如`URL`为: https://item.jd.com/1835967.html 的商品ID为**1835967**.
-
 + **输入收件地区编码**: 使用Chrome浏览器(如果是其他浏览器请用同样方式打开**开发者工具**)登录京东并访问商品页, 选择派送地址后按`F12`查找`stock?`开头的`URL`讯息, 如下图: ![AreaID](./assets/1581218537205.png)
-
 + **接受讯息邮箱**: 您的接受讯息邮箱.
-
 + **滑动条**: 控制监控时查询的速度(频率).
++ **购买数量**: 调整一次购买数量.
++ **是否自动忽略下架商品**: 未打勾 - 下架商品上架时立即抢购, 打勾 - 自动忽略下架商品并删除.
 
-  
+
 
 以下选项您可以不看也会使用:
 

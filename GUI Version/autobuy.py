@@ -30,7 +30,7 @@ from email.header import Header
 class Ui_QSSWindow(object):
     def setupUi(self, QSSWindow):
         QSSWindow.setObjectName("QSSWindow")
-        QSSWindow.resize(800, 450)
+        QSSWindow.resize(950, 450)
         self.centralwidget = QtWidgets.QWidget(QSSWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.centralwidget)
@@ -64,8 +64,6 @@ class Ui_QSSWindow(object):
         self.inputArea.setObjectName("inputArea")
         self.area.addWidget(self.inputArea)
 
-
-
         self.labelMail = QtWidgets.QLabel(self.groupBox)
         self.labelMail.setObjectName("labelMail")
         self.area.addWidget(self.labelMail)
@@ -79,6 +77,10 @@ class Ui_QSSWindow(object):
         self.comboBox = QtWidgets.QComboBox(self.groupBox)
         self.comboBox.setObjectName("comboBox")
         self.area.addWidget(self.comboBox)
+
+        self.checkBox = QtWidgets.QCheckBox(self.groupBox)
+        self.checkBox.setObjectName("checkBox")
+        self.area.addWidget(self.checkBox)
 
         self.verticalLayout.addLayout(self.area)
         self.speedLayout = QtWidgets.QHBoxLayout()
@@ -162,6 +164,8 @@ class Ui_QSSWindow(object):
         self.loginBtn.setText(_translate("QSSWindow", "扫码登录"))
         self.startBtn.setText(_translate("QSSWindow", "开始监控(可自动登录)"))
         self.stopBtn.setText(_translate("QSSWindow", "停止监控"))
+        self.checkBox.setText(_translate("QSSWindow", "是否自动忽略下架商品"))
+
 
         self.labelAboutMe.setText(_translate("QSSWindow", '<h1>使用指南</h1> <a href="https://github.com/ZhangYikaii/auto-buy-Python-tool">请点击这里跳转</a> <h3>战疫情, 加油!</h3> <h4>欢迎在GitHub上加星. 谢谢!</h4> <h3>Tips: 登录一次之后本地会保存登录信息, 重启软件之后仍然可以记住账号登录信息</h3> <h3>只需点击"开始监控"就可以自动登录, 不必重复扫码哦</h3>'))
         self.labelAboutMe.setOpenExternalLinks(True)
@@ -193,6 +197,7 @@ class Autobuy(QtWidgets.QMainWindow, Ui_QSSWindow):
         }
 
         self.speed = 5000
+        self.isMonitorSoldout = True
         # self.isLogin = False
         self.cookiesString = ''
         self.cookies = {}
@@ -206,6 +211,7 @@ class Autobuy(QtWidgets.QMainWindow, Ui_QSSWindow):
         self.connectSign()
         self.initData()
         self.show()
+
 
     def loadQSS(self):
         file = 'window.qss'
@@ -277,7 +283,7 @@ class Autobuy(QtWidgets.QMainWindow, Ui_QSSWindow):
         self.progressBar.setValue(self.horizontalSlider.value())
 
     def checkLogin(self):
-        self.updateStateText('验证登录状态...')
+        self.updateStateText('正在验证登录状态...')
         for flag in range(1, 3):
             try:
                 targetURL = 'https://order.jd.com/center/list.action'
@@ -397,7 +403,7 @@ class Autobuy(QtWidgets.QMainWindow, Ui_QSSWindow):
                     time.sleep(2)
 
             if not qr_ticket:
-                self.updateStateText("ERROR: 二维码登录失败")
+                self.updateStateText("ERROR: 二维码登录失败.")
                 # self.isLogin = False
                 return False
 
@@ -424,7 +430,7 @@ class Autobuy(QtWidgets.QMainWindow, Ui_QSSWindow):
                     # self.isLogin = False
                     return False
                 else:
-                    self.updateStateText('登录失败, ERROR: ' + res)
+                    self.updateStateText('登录失败, ERROR message: ' + res)
                     # self.isLogin = False
                     return False
 
@@ -445,7 +451,7 @@ class Autobuy(QtWidgets.QMainWindow, Ui_QSSWindow):
 
         except Exception as e:
             # self.isLogin = False
-            self.updateStateText('ERROR: ' + str(e))
+            self.updateStateText('ERROR message: ' + str(e))
             raise
 
     def getUsername(self):
@@ -569,10 +575,10 @@ class Autobuy(QtWidgets.QMainWindow, Ui_QSSWindow):
                     'promo_id': promo_id
                 }
             except Exception as e:
-                self.updateStateText("ERROR: 商品%s在购物车中的信息无法解析, 报错信息: %s, 该商品自动忽略", sku_id, e)
+                self.updateStateText("ERROR: 商品%s在购物车中的信息无法解析, 报错信息: %s, 该商品自动忽略.", sku_id, e)
 
         if isOutput == True:
-            self.updateStateText('当前购物车信息: %s' % cartDetail)
+            self.updateStateText('当前购物车信息: %s.' % cartDetail)
         return cartDetail
 
     def addItemToCart(self, sku_id):
@@ -593,7 +599,7 @@ class Autobuy(QtWidgets.QMainWindow, Ui_QSSWindow):
         if result:
             self.updateStateText('%s 编号商品已成功加入购物车, 数量: %d.' % (sku_id, addNum))
         else:
-            self.updateStateText('ERROR: %s 编号商品添加到购物车失败' % sku_id)
+            self.updateStateText('ERROR: %s 编号商品添加到购物车失败.' % sku_id)
 
     def responseStatus(self, resp):
         if resp.status_code != requests.codes.OK:
@@ -618,7 +624,7 @@ class Autobuy(QtWidgets.QMainWindow, Ui_QSSWindow):
             resp = self.sess.get(url=url, params=payload, headers=headers)
 
             if not self.responseStatus(resp):
-                self.updateStateText('ERROR: 获取订单结算页信息失败')
+                self.updateStateText('ERROR: 获取订单结算页信息失败.')
                 return None
             soup = BeautifulSoup(resp.text, "html.parser")
 
@@ -632,9 +638,9 @@ class Autobuy(QtWidgets.QMainWindow, Ui_QSSWindow):
             self.updateStateText("下单信息: %s" % order_detail)
             return order_detail
         except requests.exceptions.RequestException as e:
-            self.updateStateText('ERROR: 订单结算页面获取异常: %s' % e)
+            self.updateStateText('订单结算页面获取异常, ERROR message: %s.' % e)
         except Exception as e:
-            self.updateStateText('ERROR: 下单页面数据解析异常: %s' % e)
+            self.updateStateText('下单页面数据解析异常, ERROR message: %s.' % e)
         return None
 
     def submit_order(self, risk_control, payment_pwd):
@@ -698,7 +704,7 @@ class Autobuy(QtWidgets.QMainWindow, Ui_QSSWindow):
                     message = message + '(可能是购物车为空或未勾选购物车中商品)'
                 elif result_code == 60123:
                     message = message + '(未配置支付密码)'
-                self.updateStateText('订单提交失败, 错误码: %s, 返回信息: %s' % (result_code, message))
+                self.updateStateText('订单提交失败, 错误码: %s, 返回信息: %s.' % (result_code, message))
                 self.updateStateText(resp_json)
                 return False
         except Exception as e:
@@ -733,7 +739,7 @@ class Autobuy(QtWidgets.QMainWindow, Ui_QSSWindow):
                     return True
             time.sleep(1)
         else:
-            self.updateStateText('执行结束，提交订单失败！')
+            self.updateStateText('执行结束，提交订单失败.')
             return False
 
     def monitorConnect(self):
@@ -746,7 +752,13 @@ class Autobuy(QtWidgets.QMainWindow, Ui_QSSWindow):
         self.areaID = self.inputArea.text()
 
         self.timer.timeout.connect(self.monitorMain)
-        self.updateStateText("当前轮询速度为 %f 秒/次" % (self.speed / 1000))
+        self.updateStateText("当前轮询速度为 %f 秒/次." % (self.speed / 1000))
+        if self.checkBox.isChecked():
+            self.isMonitorSoldout = False
+            self.updateStateText('当前模式将为您自动忽略并删除下架商品.')
+        else:
+            self.isMonitorSoldout = True
+            self.updateStateText('当前模式将为您保持监控下架商品, 若其上架则立即抢购.')
         self.timer.start(self.speed)  # 设置计时间隔并启动
         return True
 
@@ -800,7 +812,7 @@ class Autobuy(QtWidgets.QMainWindow, Ui_QSSWindow):
 
         resp = self.sess.post(url, data=data, headers=headers)
         if resp.status_code != requests.codes.OK:
-            self.updateStateText('清空购物车勾选商品出错. status_code: %u, URL: %s' % (resp.status_code, resp.url))
+            self.updateStateText('清空购物车勾选商品出错. status_code: %u, URL: %s.' % (resp.status_code, resp.url))
             return False
 
         self.updateStateText('清空购物车勾选商品成功!')
@@ -817,9 +829,10 @@ class Autobuy(QtWidgets.QMainWindow, Ui_QSSWindow):
             self.updateStateText('第 ' + str(self.cont) + ' 次查询:')
             self.cont += 1
             inStockSkuid = self.checkStock()
+            soldOutNum = 0
             for skuId in inStockSkuid:
                 if self.isSoldOut(skuId):
-                    self.updateStateText('%s 编号商品有货啦! 马上下单' % skuId)
+                    self.updateStateText('%s 编号商品有货啦! 马上下单.' % skuId)
                     skuidUrl = 'https://item.jd.com/' + skuId + '.html'
                     if self.buyGoods(skuId):
                         self.sendMail(skuidUrl, True)
@@ -828,15 +841,20 @@ class Autobuy(QtWidgets.QMainWindow, Ui_QSSWindow):
                     self.stopNow()
 
                 else:
-                    self.updateStateText('%s 编号商品已下架.' % skuId)
-                    self.skuid.remove(skuId)
-                    idBeg = self.skuidString.find(str(skuId))
-                    idEnd = idBeg + len(str(skuId))
-                    self.skuidString = self.skuidString[0:idBeg] + self.skuidString[idEnd + 1:]
-                    self.inputGoods.setText(self.skuidString)
-                    self.updateStateText('已将 %s 编号的下架商品清除, 并更新了商品编号输入框.' % skuId)
-                    self.selectAll()
-                    self.removeItem()
+                    if self.isMonitorSoldout == False:
+                        self.updateStateText('%s 编号商品已下架.' % skuId)
+                        self.skuid.remove(skuId)
+                        idBeg = self.skuidString.find(str(skuId))
+                        idEnd = idBeg + len(str(skuId))
+                        self.skuidString = self.skuidString[0:idBeg] + self.skuidString[idEnd + 1:]
+                        self.inputGoods.setText(self.skuidString)
+                        self.updateStateText('已将 %s 编号的下架商品清除, 并更新了商品编号输入框.' % skuId)
+                        self.selectAll()
+                        self.removeItem()
+                    else:
+                        soldOutNum += 1
+            if soldOutNum != 0:
+                self.updateStateText('监控的 %d 个商品已下架, 但当前模式保持监控.' % soldOutNum)
 
             if self.cont % 300 == 0:
                 self.checkLogin()
